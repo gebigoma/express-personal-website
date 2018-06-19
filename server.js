@@ -1,30 +1,48 @@
 const
   express = require('express'),
   app = express(),
-  PORT = 3000,
-  fs = require('fs'),
-  routes = require('./routes.js')
+  logger = require('morgan'),
+  pagesController = require('./pagesController.js'),
+  PORT = 3000
 
+users = [
+  {name: "Tina", 
+  email: "tina@gmail.com",
+  password: "password"}, 
+  {name: "Jack",
+  email: "jack@gmail.com", 
+  password: "password"},
+  {name: "Jesse",
+  email: "jesse@gmail.com", 
+  password: "password"}
+]
 
+app.use(logger('dev')) // logs in terminal when it's pinged the route, time to load
 
-//  const handleRoot = (req, res) => {
-//     res.send(`<h1>Hellooooo</h1>`)
-//   }
-// const handleAbout = (req, res) => {
-//   res.send(`<h1>About ME!</h1>`)
-// }
-// const handleContact = (req, res) => {
-//   res.send(`<h1>Call me, maybe</h1>`)
-// }
+app.use(express.json())
 
-app.get('/', routes.handleRoot);
-app.get('/about', routes.handleAbout);
-app.get('/contact', routes.handleContact);
+// order that APP is starting, order matters, reading as a chain
+app.get('/', pagesController.home);
+app.get('/about', pagesController.about);
+app.get('/contact', pagesController.contact);
 
+app.get("/users/:index", (req, res) => {
+  let index = req.params.index
+  let user = users[index]
+  res.json(user)
+})
 
+app.get("/users", (req, res) => {
+  res.json(users)
+})
 
+app.post("/users", (req, res) => {
+  users.push(req.body)
+  res.json({ message: "data received." })
+})
 
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
+// err is specifc to the .listen method
+app.listen(PORT, (err) => {
+  console.log(err || `Server running on ${PORT}`)
 });
 
